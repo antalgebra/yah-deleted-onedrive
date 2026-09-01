@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import configparser
 import getpass
 import grp
 import os
@@ -116,6 +117,20 @@ def service_command(
     )
 
 
+def rclone_remote_is_complete(remote: str) -> bool:
+    parser = configparser.ConfigParser(interpolation=None)
+    try:
+        parser.read(RCLONE_CONFIG_PATH, encoding="utf-8")
+    except (OSError, configparser.Error):
+        return False
+    if not parser.has_section(remote):
+        return False
+    if parser.get(remote, "type", fallback="").strip() != "onedrive":
+        return False
+    required = ("token", "drive_id", "drive_type")
+    return all(parser.get(remote, key, fallback="").strip() for key in required)
+
+
 def ensure_rclone_remote(remote: str) -> None:
     result = service_command(
         "rclone",
@@ -126,9 +141,20 @@ def ensure_rclone_remote(remote: str) -> None:
         capture=True,
     )
     remotes = set(result.stdout.splitlines()) if result.stdout else set()
-    if f"{remote}:" in remotes:
+    if f"{remote}:" in remotes and rclone_remote_is_complete(remote):
         print(f"Using existing rclone remote: {remote}")
         return
+
+    if f"{remote}:" in remotes:
+        print(f"Removing incomplete rclone remote: {remote}")
+        service_command(
+            "rclone",
+            "--config",
+            str(RCLONE_CONFIG_PATH),
+            "config",
+            "delete",
+            remote,
+        )
 
     print("\nMicrosoft authorization will now be handled by rclone.")
     print(f"Create a remote named exactly: {remote}")
@@ -149,8 +175,11 @@ def ensure_rclone_remote(remote: str) -> None:
         check=False,
         capture=True,
     )
-    if f"{remote}:" not in set((verify.stdout or "").splitlines()):
-        raise RuntimeError(f"rclone remote {remote!r} was not created")
+    if (
+        f"{remote}:" not in set((verify.stdout or "").splitlines())
+        or not rclone_remote_is_complete(remote)
+    ):
+        raise RuntimeError(f"rclone remote {remote!r} was not completely configured")
 
 
 def main() -> int:

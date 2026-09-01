@@ -25,7 +25,7 @@ from pathlib import Path, PurePosixPath
 
 CONFIG_DIRECTORY = Path("/etc/yah-deleted-onedrive")
 CONFIG_PATH = CONFIG_DIRECTORY / "exporter.env"
-RCLONE_CONFIG_PATH = CONFIG_DIRECTORY / "rclone.conf"
+RCLONE_CONFIG_PATH = Path("/var/lib/yah-deleted-onedrive/rclone.conf")
 STATE_DIRECTORY = Path("/var/lib/yah-deleted-onedrive")
 DATABASE_PATH = STATE_DIRECTORY / "state.sqlite3"
 TEMP_DIRECTORY = STATE_DIRECTORY / "tmp"

@@ -15,7 +15,8 @@ from pathlib import Path
 
 CONFIG_DIRECTORY = Path("/etc/yah-deleted-onedrive")
 CONFIG_PATH = CONFIG_DIRECTORY / "exporter.env"
-RCLONE_CONFIG_PATH = CONFIG_DIRECTORY / "rclone.conf"
+STATE_DIRECTORY = Path("/var/lib/yah-deleted-onedrive")
+RCLONE_CONFIG_PATH = STATE_DIRECTORY / "rclone.conf"
 YAHOO_ACCOUNT_DIRECTORY = Path("/etc/yah-arch/accounts")
 SERVICE_USER = "yahdeleted"
 SERVICE_NAME = "yah-deleted-onedrive.service"
@@ -92,6 +93,10 @@ def atomic_write_config(values: dict[str, str]) -> None:
     os.replace(temporary, CONFIG_PATH)
     os.chown(CONFIG_DIRECTORY, 0, group.gr_gid)
     os.chmod(CONFIG_DIRECTORY, 0o750)
+    STATE_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    os.chown(STATE_DIRECTORY, account.pw_uid, group.gr_gid)
+    os.chmod(STATE_DIRECTORY, 0o750)
+    RCLONE_CONFIG_PATH.touch(exist_ok=True)
     os.chown(RCLONE_CONFIG_PATH, account.pw_uid, group.gr_gid)
     os.chmod(RCLONE_CONFIG_PATH, 0o600)
 
@@ -129,6 +134,7 @@ def ensure_rclone_remote(remote: str) -> None:
     print(f"Create a remote named exactly: {remote}")
     print("Choose Microsoft OneDrive; Personal and Business are both supported.")
     print("Leave the Microsoft client ID and secret blank.")
+    print("Keep the Configuration complete block private; it contains OAuth tokens.")
     service_command(
         "rclone",
         "--config",

@@ -1,0 +1,17 @@
+[Unit]
+Description=Copy deletion-evidenced Yahoo messages from B2 to OneDrive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=yahdeleted
+Group=yahdeleted
+UMask=0077
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/yah-deleted-onedrive/venv/bin/python /opt/yah-deleted-onedrive/src/exporter.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

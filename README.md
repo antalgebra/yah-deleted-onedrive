@@ -81,7 +81,8 @@ sudo /opt/yah-deleted-onedrive/venv/bin/python \
 
 The wizard automatically discovers the configured Yahoo account IDs. It asks
 once for the read-only B2 key, validates it, and launches rclone only if an
-OneDrive remote does not already exist.
+OneDrive remote does not already exist. Its refreshable OAuth configuration is
+kept in the service-owned state directory so rclone can update it atomically.
 
 When rclone opens:
 
@@ -92,6 +93,9 @@ When rclone opens:
 5. Choose browser authentication and open the displayed localhost URL in the
    Windows browser. The SSH tunnel carries the callback to the VM.
 6. Sign into either Personal or Business OneDrive and select the desired drive.
+
+Keep rclone's `Configuration complete` block private because it contains live
+Microsoft OAuth tokens.
 
 The wizard verifies that it can create `Yahoo Deleted Mail`, enables the service,
 runs an immediate scan, and then scans once every 3,600 seconds.

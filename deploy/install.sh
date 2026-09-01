@@ -32,11 +32,12 @@ fi
 
 install -d -o root -g "${SERVICE_USER}" -m 0750 /etc/yah-deleted-onedrive
 install -d -o "${SERVICE_USER}" -g "${SERVICE_USER}" -m 0750 \
+    /var/lib/yah-deleted-onedrive \
     /var/lib/yah-deleted-onedrive/tmp
 
-if [[ ! -e /etc/yah-deleted-onedrive/rclone.conf ]]; then
+if [[ ! -e /var/lib/yah-deleted-onedrive/rclone.conf ]]; then
     install -o "${SERVICE_USER}" -g "${SERVICE_USER}" -m 0600 \
-        /dev/null /etc/yah-deleted-onedrive/rclone.conf
+        /dev/null /var/lib/yah-deleted-onedrive/rclone.conf
 fi
 
 install -o root -g root -m 0644 \

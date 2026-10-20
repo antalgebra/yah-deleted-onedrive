@@ -4,6 +4,21 @@ This independent service copies Yahoo messages that have deletion evidence into
 OneDrive for convenient browsing from Windows. The immutable Backblaze B2
 archive remains the source of truth.
 
+[Engineering case study](https://github.com/antalgebra/antalgebra/blob/main/portfolio/cloud-export.md) · [Daniel Hoffmaster](https://github.com/antalgebra)
+
+## Engineering overview
+
+This project demonstrates an integration between cloud services with persistent processing state and separate permissions.
+
+| Engineering concern | Approach |
+| --- | --- |
+| Source isolation | Read-only, bucket-restricted B2 credentials; no Yahoo credentials |
+| Record identity | Verify full source SHA-256 and track completed copies by account and content hash |
+| Recovery | SQLite-backed event states, attempt counts, error details, and queued retries |
+| Destination handling | Copy with `rclone --immutable`, then compare the reported destination file size |
+
+The input hash check and destination size check provide different verification guarantees. See the case study for the implementation details and limits.
+
 ## Guarantees
 
 - Runs continuously on Ubuntu; Windows does not need to be on.
